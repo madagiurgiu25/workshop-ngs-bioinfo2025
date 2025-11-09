@@ -11,25 +11,52 @@ To illustrate the process, we will use **2×Coriell** data, HG00171 and HG00152,
 
 For practicality, this dataset was trimmed to include only a few genes, effectively **emulating a Panel Sequencing dataset**.
 
+# 📖 Table of Contents
+
+* [From FASTQ to BAM Tutorial for short-read paired-end NGS Illumina data](#from-fastq-to-bam-tutorial-for-short-read-paired-end-ngs-illumina-data)
+
+  * [1. Installation and Data Download](#1-installation-and-data-download)
+
+    * [1.1 Clone the Repository](#step-11-clone-the-repository)
+    * [1.2 Install Required Tools](#step-12-unstall-the-required-tools-using-tutorial_installmd-and-activate-enviroment)
+    * [1.3 Download Input Data and Reference Genome](#step-13-download-the-input-data-in-fastq-format-and-the-grch38hg38-gencode-human-reference-genome)
+  * [2. Prepare Reference Genome](#2-prepare-reference-genome)
+  * [3. Run Quality Control Using FastQC and MultiQC on Raw FASTQ](#2-run-quality-control-using-fastqc-and-multiqc-on-raw-fastq)
+  * [4. Trimming with Trim Galore!](#3-trimming-with-trim-galore)
+  * [5. Run MultiQC on Trimmed FASTQ](#4-run-multiqc-on-trimmed-fastq)
+  * [6. Create Mapping Index Required by BWA](#5-create-mapping-index-required-by-bwa)
+  * [7. Perform Alignment Using BWA and Sort](#6-perform-alignment-using-bwa-and-sort)
+  * [8. Compute Coverage Track](#7-compute-coverage-track)
+  * [9. Deduplication and Quality Control](#8-deduplication-and-quality-control)
+
+    * [9.1 Mark and Remove Duplicates with Picard](#mark-and-remove-duplicates-with-picard)
+    * [9.2 Keep Only Properly Paired Reads](#keep-only-properly-paired-reads)
+    * [9.3 Run Final QC on Cleaned BAM Files](#run-final-qc-on-cleaned-bam-files)
+
+---
+
 
 ![Workflow](./img/fastqtobam.png)
 
 ## 1. Installation and Data Download
 
-Step 1.1 Clone the repository:
+### 1.1 Clone the Repository
 
 ```
 git clone https://github.com/madagiurgiu25/workshop-ngs-bioinfo2025.git
 ```
 
+### 1.2 Install Required Tools
 
-Step 1.2. Unstall the required tools using [tutorial_install.md](tutorial_install.md) and activate enviroment:
+Use the installation guide from [tutorial_install.md](tutorial_install.md) and activate enviroment:
 
 ```
 conda activate bioinfo2025
 ```
 
-Step 1.3. Download the input data in FASTQ format and the GRCh38/hg38 GENCODE human reference genome by following the steps in [tutorial_install.md](tutorial_install.md). Make sure your data structure is organized like:
+### 1.3 Download Input Data and Reference Genome
+
+Download the input data in FASTQ format and the GRCh38/hg38 GENCODE human reference genome by following the steps in [tutorial_install.md](tutorial_install.md). Make sure your data structure is organized like:
 
 ```
 workshop-ngs-bioinfo2025
@@ -75,7 +102,7 @@ After this step, you should have the following files:
 ```
 
 
-## 2. Run Quality Control Using FastQC and MultiQC on Raw FASTQ
+## 3. Run Quality Control Using FastQC and MultiQC on Raw FASTQ
 
 In this step, you will check the quality of your raw FASTQ data.
 
@@ -111,7 +138,7 @@ After this step, you should have the following reports:
 
 ```
 
-## 3. Trimming with Trim Galore!
+## 4. Trimming with Trim Galore!
 
 The datasets **HG00152** and **HG00171** do not require adapter or hard trimming.
 However, it is good practice to perform **soft trimming** to remove low-quality bases (below Q20) and to discard reads shorter than 50 bp.
@@ -158,7 +185,7 @@ After this step you should have the following files:
             └── HG00171_female_ERR034564_2.cut_val_2_fastqc.zip
 ```
 
-## 4. Run MultiQC on Trimmed FASTQ
+## 5. Run MultiQC on Trimmed FASTQ
 
 We rerun FastQC in combination with MultiQC for completeness.
 
@@ -190,7 +217,7 @@ Note that the QC file `data/trimmed_fastq/HG00152_male_SRR769545_1.cut_val_1_fas
 ```
 
 
-## 5. Create Mapping Index Required by BWA
+## 6. Create Mapping Index Required by BWA
 
 In this step, we will create a **BWA mapping index** for the reference genome.
 This process generates the required `.bwt`, `.pac`, `.ann`, `.amb`, and `.sa` files used during alignment.
@@ -217,7 +244,7 @@ Output:
 ```
 
 
-## 6. Perform Alignment Using BWA and Sort
+## 7. Perform Alignment Using BWA and Sort
 
 We align next the reads to the reference genome using `bwa`. After this step a `BAM` file is generated. This requires afterwards sorting and indexing. 
 
@@ -255,7 +282,7 @@ Repeat this step for `HG00152_male_SRR769545` sample. As result you should have 
         ├── HG00171_female_ERR034564.sorted.bam.bai
 ```
 
-## 7. Compute Coverage Track
+## 8. Compute Coverage Track
 
 Create a BigWig coverage file for visualization in IGV:
 
@@ -268,7 +295,7 @@ bamCoverage -b mapping/${sample}.sorted.bam -o mapping/${sample}.sorted.coverage
 Repeat this step for `HG00152_male_SRR769545` sample.
 
 
-## 8. Deduplication and Quality Control
+## 9. Deduplication and Quality Control
 
 We need deduplication in NGS data analysis to remove duplicate reads that arise not from biology, but from the sequencing process — mainly during PCR amplification in library preparation. Additionally, we want to keep only reads which are “properly-paired”, i.e. remove unmapped, singletons or other reads. This will make the dataset more reliable for the downstream analysis.
 
@@ -278,7 +305,7 @@ In this step we will:
 - sort and index 
 - run quality checks on the cleaned BAM files
 
-
+### 9.1 Mark and Remove Duplicates with Picard
 
 ```bash
 cd workshop-ngs-bioinfo2025/data
@@ -323,6 +350,8 @@ picard CollectAlignmentSummaryMetrics \
     O=dedup/${sample}.alignment_summary.txt
 ```
 
+### 9.2 Keep Only Properly Paired Reads
+
 Filter BAM such that only properly-paired reads are kept. To understand this step check the [SAM Flag encoding](https://broadinstitute.github.io/picard/explain-flags.html).
 
 ```bash
@@ -357,6 +386,8 @@ workshop-ngs-bioinfo2025
 
 ```
 
+### 9.3 Run Final QC on Cleaned BAM Files
+
 Finally, run **FastQC** and **MultiQC** again on the cleand BAM (deduplicated+properly-paired). For this we need to convert the BAM to FASTQ:
 
 ```bash
@@ -371,7 +402,6 @@ samtools fastq ppaired/${sample}.proper.sorted.bam -1 ppaired/${sample}.proper_R
 mkdir -p fastqc_reports_clean
 fastqc -t 4 -o fastqc_reports_clean ppaired/*.fastq
 multiqc fastqc_reports_clean -o multiqc_report_clean
-
 ```
 
 
