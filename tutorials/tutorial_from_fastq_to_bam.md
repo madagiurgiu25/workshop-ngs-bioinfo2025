@@ -11,30 +11,33 @@ To illustrate the process, we will use **2×Coriell** data, HG00171 and HG00152,
 
 For practicality, this dataset was trimmed to include only a few genes, effectively **emulating a Panel Sequencing dataset**.
 
-# 📖 Table of Contents
+## Table of Contents
 
-* [From FASTQ to BAM Tutorial for short-read paired-end NGS Illumina data](#from-fastq-to-bam-tutorial-for-short-read-paired-end-ngs-illumina-data)
+- [1. Installation and Data Download](#1-installation-and-data-download)
+  - [1.1 Clone the Repository](#11-clone-the-repository)
+  - [1.2 Install Required Tools](#12-install-required-tools)
+  - [1.3 Download Input Data and Reference Genome](#13-download-input-data-and-reference-genome)
 
-  * [1. Installation and Data Download](#1-installation-and-data-download)
+- [2. Prepare Reference Genome](#2-prepare-reference-genome)
 
-    * [1.1 Clone the Repository](#step-11-clone-the-repository)
-    * [1.2 Install Required Tools](#step-12-unstall-the-required-tools-using-tutorial_installmd-and-activate-enviroment)
-    * [1.3 Download Input Data and Reference Genome](#step-13-download-the-input-data-in-fastq-format-and-the-grch38hg38-gencode-human-reference-genome)
-  * [2. Prepare Reference Genome](#2-prepare-reference-genome)
-  * [3. Run Quality Control Using FastQC and MultiQC on Raw FASTQ](#2-run-quality-control-using-fastqc-and-multiqc-on-raw-fastq)
-  * [4. Trimming with Trim Galore!](#3-trimming-with-trim-galore)
-  * [5. Run MultiQC on Trimmed FASTQ](#4-run-multiqc-on-trimmed-fastq)
-  * [6. Create Mapping Index Required by BWA](#5-create-mapping-index-required-by-bwa)
-  * [7. Perform Alignment Using BWA and Sort](#6-perform-alignment-using-bwa-and-sort)
-  * [8. Compute Coverage Track](#7-compute-coverage-track)
-  * [9. Deduplication and Quality Control](#8-deduplication-and-quality-control)
+- [3. Run Quality Control Using FastQC and MultiQC on Raw FASTQ](#3-run-quality-control-using-fastqc-and-multiqc-on-raw-fastq)
 
-    * [9.1 Mark and Remove Duplicates with Picard](#mark-and-remove-duplicates-with-picard)
-    * [9.2 Keep Only Properly Paired Reads](#keep-only-properly-paired-reads)
-    * [9.3 Run Final QC on Cleaned BAM Files](#run-final-qc-on-cleaned-bam-files)
+- [4. Trimming with Trim Galore!](#4-trimming-with-trim-galore)
+
+- [5. Run MultiQC on Trimmed FASTQ](#5-run-multiqc-on-trimmed-fastq)
+
+- [6. Create Mapping Index Required by BWA](#6-create-mapping-index-required-by-bwa)
+
+- [7. Perform Alignment Using BWA and Sort](#7-perform-alignment-using-bwa-and-sort)
+
+- [8. Compute Coverage Track](#8-compute-coverage-track)
+
+- [9. Deduplication and Quality Control](#9-deduplication-and-quality-control)
+  - [9.1 Mark and Remove Duplicates with Picard](#91-mark-and-remove-duplicates-with-picard)
+  - [9.2 Keep Only Properly Paired Reads](#92-keep-only-properly-paired-reads)
+  - [9.3 Run Final QC on Cleaned BAM Files](#93-run-final-qc-on-cleaned-bam-files)
 
 ---
-
 
 ![Workflow](./img/fastqtobam.png)
 
