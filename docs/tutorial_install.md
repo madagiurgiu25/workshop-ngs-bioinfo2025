@@ -19,8 +19,7 @@ Most bioinformatics tools are designed for Linux.
 
   1. Download and install **Git Bash** from [https://gitforwindows.org/](https://gitforwindows.org/)
   2. Once installed, open **Git Bash**. It provides a Unix-like shell similar to Linux.
-
----
+  
 
 ## **2. Install Conda (via Miniforge)**
 
@@ -51,7 +50,6 @@ Conda is a package and environment manager that simplifies installation of scien
 
 You should see something like `conda 24.x.x`.
 
----
 
 ## **3. Create the Bioinformatics Environment**
 
@@ -88,8 +86,6 @@ bwa
 samtools --version
 ```
 
----
-
 ## **4. Download the Human Reference Genome**
 
 We will use as human reference genome the GRCh38 primary assembly from **GENCODE Release 49**.
@@ -106,8 +102,6 @@ Visit GENCODE website [https://www.gencodegenes.org/human/](https://www.gencodeg
 wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/GRCh38.primary_assembly.genome.fa.gz
 gunzip GRCh38.primary_assembly.genome.fa.gz
 ```
-
----
 
 ## **5. Download Raw Data for Two Coriell Samples**
 
