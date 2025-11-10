@@ -300,7 +300,9 @@ Repeat this step for `HG00152_male_SRR769545` sample.
 
 ## 9. Deduplication and Quality Control
 
-We need deduplication in NGS data analysis to remove duplicate reads that arise not from biology, but from the sequencing process — mainly during PCR amplification in library preparation. Additionally, we want to keep only reads which are “properly-paired”, i.e. remove unmapped, singletons or other reads. This will make the dataset more reliable for the downstream analysis.
+We need deduplication in NGS data analysis to remove duplicate reads that arise not from biology, but from the sequencing process — mainly during PCR amplification in library preparation. Additionally, we want to keep only reads which are "properly-paired", i.e. remove unmapped, singletons or other reads. This will make the dataset more reliable for the downstream analysis, i.e. SNV and INDELs calling. 
+
+**!IMPORTANT:** Please note that for SV calling keeping only "properly-paired" reads is not sufficient, as in this case you are interested keeping discordant and split-reads.
 
 In this step we will:
 - remove PCR duplicates using **Picard MarkDuplicates**
