@@ -1,3 +1,27 @@
+# GATK Germline Variant Calling & Filtering Analysis Pipeline
+
+This document describes a complete workflow for variant calling, filtering, comparison, and coverage analysis using GATK, bcftools, and bedtools.
+
+Here’s your pipeline with a **clean Markdown Table of Contents (TOC)** that works in GitHub, GitLab, Obsidian, VS Code, and Jupyter notebooks.
+You can paste this directly into a `.md` file — all section links will work automatically.
+
+---
+
+## Table of Contents
+
+* [1. Prepare GATK Metadata](#1-prepare-gatk-metadata)
+* [2. Variant Calling with GATK HaplotypeCaller](#2-variant-calling-with-gatk-haplotypecaller)
+* [3. Variant Filtering](#3-variant-filtering)
+  * [3.1 Apply Quality Filters (VariantFiltration)](#31-apply-quality-filters-variantfiltration)
+  * [3.2 Select Variants (SelectVariants)](#32-select-variants-selectvariants)
+* [4. Variant Comparison and Statistics](#4-variant-comparison-and-statistics)
+  * [4.1 Merge Variants](#41-merge-variants)
+  * [4.2 Generate Variant Statistics](#42-generate-variant-statistics)
+* [5. Compute On-Target Coverage](#5-compute-on-target-coverage)
+  * [5.1 Extract Exons for a Gene](#51-extract-exons-for-a-gene)
+  * [5.2 Compute Mean Exon Coverage](#52-compute-mean-exon-coverage)
+
+---
 
 
 ## 1. Prepare Gatk metadata
@@ -52,7 +76,6 @@ gatk VariantFiltration \
   --filter-name "LowQual" --filter-expression  "QUAL < 10"
 ```
 
-
 ### 3.2 Select variants using Gatk SelectVariants
 
 This step will remove all variants having a tag other than `PASS`.
@@ -61,6 +84,17 @@ This step will remove all variants having a tag other than `PASS`.
 sample=HG00171_female_ERR034564
 
 gatk SelectVariants -V variants/${sample}_flagged.vcf.gz --exclude-filtered -O variants/${sample}_filtered.vcf.gz
+```
+
+If the user would like to keep `PASS` and some filter `NonGermline`, one could run:
+
+```bash
+sample=HG00171_female_ERR034564
+
+gatk SelectVariants \
+-V variants/${sample}_flagged.vcf.gz 
+--select-expression "vc.getFilter() == 'PASS' || vc.getFilter() == 'NonGermline'"\
+-O variants/${sample}_filtered_keep_PASS_NonGermline.vcf.gz
 ```
 
 Repeat Steps 2 and 3 for the `HG00152_male_SRR769545`.
