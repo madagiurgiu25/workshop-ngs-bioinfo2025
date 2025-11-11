@@ -50,7 +50,7 @@ gatk HaplotypeCaller \
 
 ## 3. Variant filtering
 
-### 3.1 Set filters using Gatk VariantFiltration
+### 3.1  Apply Quality Filters (VariantFiltration)
 
 In this step we label variants which do not meet different quality criterias like:
 
@@ -76,7 +76,7 @@ gatk VariantFiltration \
   --filter-name "LowQual" --filter-expression  "QUAL < 10"
 ```
 
-### 3.2 Select variants using Gatk SelectVariants
+### 3.2 Select Variants (SelectVariants)
 
 This step will remove all variants having a tag other than `PASS`.
 
@@ -99,7 +99,7 @@ gatk SelectVariants \
 
 Repeat Steps 2 and 3 for the `HG00152_male_SRR769545`.
 
-## 4. Variant comparison and stats
+## 4. Variant Comparison and Statistics
 
 ### 4.1 Merge variants
 
@@ -109,7 +109,7 @@ Using `bcftools merge` use the :
 bcftools merge variants/HG00171_female_ERR034564_filtered.vcf.gz variants/HG00152_male_SRR769545_filtered.vcf.gz -o variants/merged_filtered.vcf.gz -O z
 ```
 
-### 4.2 Stats
+### 4.2 Generate Variant Statistics
 
 Using `bcftools` create summary statistics of the SNVs and INDELs:
 
@@ -137,7 +137,9 @@ tabix -p vcf isec_out/0003.vcf.gz
 
 ## 5. Compute on-target coverage
 
-For a gene first extract all the exons:
+### 5.1 Extract Exons for a Gene
+
+Extract all the exons for DMD gene:
 
 ```bash
 # Extract all exons
@@ -152,7 +154,9 @@ bedtools sort -i ${gene}_exons.bed | bedtools merge -i - -s -c 4,5,6,7 -o collap
 awk 'BEGIN{OFS="\t"} {print $1,$2,$3,"exon_"NR,$5,$6,$7}' ${gene}_exons_all.bed > tmp && mv tmp ${gene}_exons_all.bed
 ```
 
-Compute mean coverage
+### 5.2 Compute Mean Exon Coverage
+
+Compute on-target mean coverage for DMD:
 
 ```bash
 gene=DMD
