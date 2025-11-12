@@ -1,0 +1,28 @@
+# ========== CONFIG PARAMETERS ==============
+
+# Fastq 1
+R1: "data/raw_fastq/HG00171_female_ERR034564_1.cut.fastq.gz"
+
+# Fastq 2
+R2: "data/raw_fastq/HG00171_female_ERR034564_2.cut.fastq.gz"
+
+# Sample name (without _1/_2 suffix)
+sample: "HG00171_female_ERR034564"
+
+# Reference genome FASTA file
+ref: "data/index/GRCh38.primary_assembly.genome.cut.fa"
+
+# Output directory for all results
+outdir: "results/HG00171"
+
+# Number of threads for multithreaded tools
+threads: 4
+
+# Minimum read length for trimming
+minlen: 50
+
+# Quality threshold for trimming
+q: 20
+
+# Minimal depth of coverage for variant calling
+DP: 20
