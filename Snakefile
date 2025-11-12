@@ -19,34 +19,21 @@ DP = config["DP"]
 os.makedirs(OUTDIR, exist_ok=True)
 
 # ========== TARGET RULE ===================
-# for multisample
-# rule all:
-#     input:
-#         expand("{{outdir}}/fastqc_reports/{{sample}}_1_fastqc.html", sample=SAMPLE, outdir=OUTDIR),
-#         expand("{{outdir}}/fastqc_reports/{{sample}}_2_fastqc.html", sample=SAMPLE, outdir=OUTDIR),
-#         # expand("{{outdir}}/multiqc_report/multiqc_report.html", outdir=OUTDIR),
-#         expand("{{outdir}}/fastqc_reports_trimmed/{{sample}}_1.cut_val_1_fastqc.html", sample=SAMPLE, outdir=OUTDIR),
-#         expand("{{outdir}}/fastqc_reports_trimmed/{{sample}}_2.cut_val_2_fastqc.html", sample=SAMPLE, outdir=OUTDIR),
-#         # expand("{{outdir}}/multiqc_report_trimmed/multiqc_report.html", outdir=OUTDIR),
-#         expand("{{outdir}}/mapping/{{sample}}.sorted.bam.bai", sample=SAMPLE, outdir=OUTDIR),
-#         expand("{{outdir}}/dedup/{{sample}}.dedup.bam.bai", sample=SAMPLE, outdir=OUTDIR),
-#         expand("{{outdir}}/ppaired/{{sample}}.proper.sorted.bam.bai", sample=SAMPLE, outdir=OUTDIR),
-#         # expand("{{outdir}}/multiqc_report_clean/multiqc_report.html", sample=SAMPLE, outdir=OUTDIR),
-#         expand("{{outdir}}/fastqc_reports_clean/{{sample}}.proper_R1_fastqc.html", sample=SAMPLE, outdir=OUTDIR),
-#         expand("{{outdir}}/fastqc_reports_clean/{{sample}}.proper_R2_fastqc.html", sample=SAMPLE, outdir=OUTDIR),
-#         expand("{{outdir}}/variants/{{sample}}_filtered.vcf.gz", sample=SAMPLE, outdir=OUTDIR)
 
 rule all:
     input:
         f"{OUTDIR}/fastqc_reports/{SAMPLE}_1.cut_fastqc.html",
         f"{OUTDIR}/fastqc_reports/{SAMPLE}_2.cut_fastqc.html",
+        f"{OUTDIR}/multiqc_report/multiqc_report.html",
         f"{OUTDIR}/fastqc_reports_trimmed/{SAMPLE}_1.cut_val_1_fastqc.html",
         f"{OUTDIR}/fastqc_reports_trimmed/{SAMPLE}_2.cut_val_2_fastqc.html",
-        f"{OUTDIR}/mapping/{SAMPLE}.sorted.bam.bai",
-        f"{OUTDIR}/dedup/{SAMPLE}.dedup.bam.bai",
-        f"{OUTDIR}/ppaired/{SAMPLE}.proper.sorted.bam.bai",
+        f"{OUTDIR}/multiqc_report_trimmed/multiqc_report.html",
+        # f"{OUTDIR}/mapping/{SAMPLE}.sorted.bam.bai",
+        # f"{OUTDIR}/dedup/{SAMPLE}.dedup.bam.bai",
+        # f"{OUTDIR}/ppaired/{SAMPLE}.proper.sorted.bam.bai",
         f"{OUTDIR}/fastqc_reports_clean/{SAMPLE}.proper_R1_fastqc.html",
         f"{OUTDIR}/fastqc_reports_clean/{SAMPLE}.proper_R2_fastqc.html",
+        f"{OUTDIR}/multiqc_report_clean/multiqc_report.html",
         f"{OUTDIR}/variants/{SAMPLE}_filtered.vcf.gz"
 
 
@@ -69,13 +56,14 @@ rule fastqc_reports:
 # ------------------------------------------------------------
 # 2. Run MultiQC on raw FastQC reports
 # ------------------------------------------------------------
-# rule multiqc_report:
-#     input:
-#         expand(f"{OUTDIR}/fastqc_reports/{SAMPLE}_1_fastqc.html", SAMPLE=[SAMPLE])
-#     output:
-#         f"{OUTDIR}/multiqc_report/multiqc_report.html"
-#     shell:
-#         "mkdir -p {OUTDIR}/multiqc_report && multiqc {OUTDIR}/fastqc_reports -o {OUTDIR}/multiqc_report"
+rule multiqc_report:
+    input:
+        f"{OUTDIR}/fastqc_reports/{SAMPLE}_1.cut_fastqc.html",
+        f"{OUTDIR}/fastqc_reports/{SAMPLE}_2.cut_fastqc.html",
+    output:
+        f"{OUTDIR}/multiqc_report/multiqc_report.html"
+    shell:
+        "mkdir -p {OUTDIR}/multiqc_report && multiqc {OUTDIR}/fastqc_reports -o {OUTDIR}/multiqc_report"
 
 # ------------------------------------------------------------
 # 3. Trim with Trim Galore
@@ -113,13 +101,14 @@ rule fastqc_reports_trimmed:
         fastqc -t {threads} -o {OUTDIR}/fastqc_reports_trimmed {input}
         """
 
-# rule multiqc_report_trimmed:
-#     input:
-#         f"{OUTDIR}/fastqc_reports_trimmed/{SAMPLE}_1.cut_val_1_fastqc.html"
-#     output:
-#         f"{OUTDIR}/multiqc_report_trimmed/multiqc_report.html"
-#     shell:
-#         "mkdir -p {OUTDIR}/multiqc_report_trimmed && multiqc {OUTDIR}/fastqc_reports_trimmed -o {OUTDIR}/multiqc_report_trimmed"
+rule multiqc_report_trimmed:
+    input:
+        f"{OUTDIR}/fastqc_reports_trimmed/{SAMPLE}_1.cut_val_1_fastqc.html",
+        f"{OUTDIR}/fastqc_reports_trimmed/{SAMPLE}_2.cut_val_2_fastqc.html",
+    output:
+        f"{OUTDIR}/multiqc_report_trimmed/multiqc_report.html"
+    shell:
+        "mkdir -p {OUTDIR}/multiqc_report_trimmed && multiqc {OUTDIR}/fastqc_reports_trimmed -o {OUTDIR}/multiqc_report_trimmed"
 
 # ------------------------------------------------------------
 # 5. Index reference (BWA)
@@ -147,7 +136,7 @@ rule bwa_mem:
     shell:
         """
         mkdir -p {OUTDIR}/mapping
-        bwa mem -t {threads} -R "@RG\\tID:{SAMPLE}\\tSM:{SAMPLE}\\tPL:ILLUMINA\\tLB:lib1\\tPU:unit1" {input.ref} {input.R1} {input.R2} |
+        bwa mem -t {threads} -R \"@RG\\tID:{SAMPLE}\\tSM:{SAMPLE}\\tPL:ILLUMINA\\tLB:lib1\\tPU:unit1\" {input.ref} {input.R1} {input.R2} |
         samtools view -bS - | samtools sort -o {output.bam}
         samtools index {output.bam}
         """
@@ -170,7 +159,15 @@ rule mark_duplicates:
         """
 
 # ------------------------------------------------------------
-# 8. Keep only properly paired reads
+# 8. QC after deduplication
+# ------------------------------------------------------------
+#
+#   HOMEWORK to add the FastQC and MultiQC analysis
+#
+#
+
+# ------------------------------------------------------------
+# 9. Keep only properly paired reads
 # ------------------------------------------------------------
 rule filter_properly_paired:
     input:
@@ -187,7 +184,7 @@ rule filter_properly_paired:
         """
 
 # ------------------------------------------------------------
-# 4. QC after deduplication and properly paired filtering
+# 10. QC after properly paired filtering
 # ------------------------------------------------------------
 rule convert_bam_to_fastq:
     input:
@@ -214,16 +211,17 @@ rule fastqc_reports_clean:
         fastqc -t {threads} -o {OUTDIR}/fastqc_reports_clean {input}
         """
 
-# rule multiqc_report_trimmed:
-#     input:
-#         f"{OUTDIR}/fastqc_reports_trimmed/{SAMPLE}_1.cut_val_1_fastqc.html"
-#     output:
-#         f"{OUTDIR}/multiqc_report_trimmed/multiqc_report.html"
-#     shell:
-#         "mkdir -p {OUTDIR}/multiqc_report_trimmed && multiqc {OUTDIR}/fastqc_reports_trimmed -o {OUTDIR}/multiqc_report_trimmed"
+rule multiqc_report_clean:
+    input:
+        f"{OUTDIR}/fastqc_reports_clean/{SAMPLE}.proper_R1_fastqc.html",
+        f"{OUTDIR}/fastqc_reports_clean/{SAMPLE}.proper_R2_fastqc.html"
+    output:
+        f"{OUTDIR}/multiqc_report_clean/multiqc_report.html"
+    shell:
+        "mkdir -p {OUTDIR}/multiqc_report_clean && multiqc {OUTDIR}/fastqc_reports_clean -o {OUTDIR}/multiqc_report_clean"
 
 # ------------------------------------------------------------
-# 9. Variant Calling (GATK HaplotypeCaller)
+# 11. Variant Calling (GATK HaplotypeCaller)
 # ------------------------------------------------------------
 rule haplotype_caller:
     input:
@@ -238,7 +236,7 @@ rule haplotype_caller:
         """
 
 # ------------------------------------------------------------
-# 10. Variant Filtering
+# 12. Variant Filtering
 # ------------------------------------------------------------
 rule variant_filtration:
     input:
@@ -254,16 +252,16 @@ rule variant_filtration:
           -R {input.ref} \
           -V {input.vcf} \
           -O {output.flagged} \
-          --filter-name "LowDP" --filter-expression "DP < {params.dp}" \
-          --filter-name "StrandBiasFS" --filter-expression "FS > 60.0" \
-          --filter-name "StrandBiasSOR" --filter-expression "SOR > 3.0" \
-          --filter-name "TailDistBias" --filter-expression "ReadPosRankSum < -8.0" \
-          --filter-name "NonGermline" --filter-expression "(AD[1]/(AD[0]+AD[1]) < 0.4)" \
-          --filter-name "LowQual" --filter-expression "QUAL < 10"
+          --filter-name \"LowDP\" --filter-expression \"DP < {params.dp}\" \
+          --filter-name \"StrandBiasFS\" --filter-expression \"FS > 60.0\" \
+          --filter-name \"StrandBiasSOR\" --filter-expression \"SOR > 3.0" \
+          --filter-name \"TailDistBias\" --filter-expression \"ReadPosRankSum < -8.0\" \
+          --filter-name \"NonGermline\" --filter-expression \"(AD[1]/(AD[0]+AD[1]) < 0.4)\" \
+          --filter-name \"LowQual\" --filter-expression \"QUAL < 10\"
         """
 
 # ------------------------------------------------------------
-# 11. Select PASS Variants
+# 13. Select PASS Variants
 # ------------------------------------------------------------
 rule select_variants:
     input:
