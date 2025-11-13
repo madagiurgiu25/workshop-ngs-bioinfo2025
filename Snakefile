@@ -127,6 +127,7 @@ rule bwa_index:
 rule bwa_mem:
     input:
         ref=REF,
+        indexbwa=f"{REF}.sa",
         R1=f"{OUTDIR}/trimmed/{SAMPLE}_1.cut_val_1.fq.gz",
         R2=f"{OUTDIR}/trimmed/{SAMPLE}_2.cut_val_2.fq.gz"
     output:

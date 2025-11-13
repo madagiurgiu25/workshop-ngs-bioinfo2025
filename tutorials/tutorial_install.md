@@ -69,7 +69,8 @@ conda create -n bioinfo2025 -c conda-forge -c bioconda \
   deeptools==3.5.6 \
   multiqc==1.31 \
   gatk4==4.6.2.0 \
-  bcftools==1.22
+  bcftools==1.22 \
+  snakemake
 ```
 
 Once installed, activate the environment:
