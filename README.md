@@ -38,6 +38,7 @@ workshop-ngs-bioinfo2025/
 │   ├── tutorial_install.md
 │   ├── tutorial_from_fastq_to_bam.md
 │   ├── tutorial_from_bam_to_vcf.md
+│   ├── tutorial_vcf_annotation
 │   └── tutorial_workflow_automation.md
 ├── data/
 │   ├── DMD_exons_all.bed
