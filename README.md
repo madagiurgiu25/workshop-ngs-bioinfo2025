@@ -53,6 +53,7 @@ workshop-ngs-bioinfo2025/
 └── README.md
 ```
 
+
 The content of the subfolders in `data` will be generated during the tutorial.
 
 ## License 
