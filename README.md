@@ -66,6 +66,5 @@ You are free to use, modify, and distribute this software, provided that the ori
 
 This repository was part of the **Genomic variants in Mendelian disease** organized by Prof. Horia Banciu at UBB, Cluj, as part of Bioinformatics Master curricula. Trainers: Dr. Anna Benet Pagès, Dr. Andreas Laner, Mădălina Giurgiu-Kraljič.
 
-The code and text was ChatGPT assisted.
-
+The code and text were assisted by ChatGPT.
 
