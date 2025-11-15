@@ -27,7 +27,7 @@ In this series of tutorials, you will learn step-by-step how to analyze NGS (Nex
    Learn how to:
    - Perform variant calling
    - Perform variant filtering
-   - Perform QC: variants stats and ompute on-target coverage
+   - Perform QC: variants stats and compute on-target coverage
 ---
 
 ## Repository Structure
@@ -40,7 +40,8 @@ workshop-ngs-bioinfo2025/
 │   ├── tutorial_from_bam_to_vcf.md
 │   └── tutorial_workflow_automation.md
 ├── data/
-│   ├── raw_fastq/
+│   ├── DMD_exons_all.bed
+│   ├── raw_fastq/     
 │   ├── trimmed_fastq/
 │   ├── index/
 │   ├── mapping/
@@ -51,6 +52,8 @@ workshop-ngs-bioinfo2025/
 │   ├── config.yaml
 └── README.md
 ```
+
+The content of the subfolders in `data` will be generated during the tutorial.
 
 ## License 
 

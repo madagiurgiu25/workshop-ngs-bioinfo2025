@@ -4,3 +4,61 @@ data/*
 # but keep folder itself
 !data/.gitkeep
 
+# raw_fastq folder
+data/raw_fastq/*
+!data/raw_fastq/.gitkeep
+
+# trimmed_fastq folder
+data/trimmed_fastq/*
+!data/trimmed_fastq/.gitkeep
+
+# index folder
+data/index/*
+!data/index/.gitkeep
+
+# mapping folder
+data/mapping/*
+!data/mapping/.gitkeep
+
+# dedup folder
+data/dedup/*
+!data/dedup/.gitkeep
+
+# ppaired folder
+data/ppaired/*
+!data/ppaired/.gitkeep
+
+# stats folder
+data/stats/*
+!data/stats/.gitkeep
+
+# fastqc_reports folders
+data/fastqc_reports/*
+!data/fastqc_reports/.gitkeep
+
+data/fastqc_reports_trimmed/*
+!data/fastqc_reports_trimmed/.gitkeep
+
+data/fastqc_reports_dedup/*
+!data/fastqc_reports_dedup/.gitkeep
+
+data/fastqc_reports_clean/*
+!data/fastqc_reports_clean/.gitkeep
+
+# multiqc_report folders
+data/multiqc_report/*
+!data/multiqc_report/.gitkeep
+
+data/multiqc_report_trimmed/*
+!data/multiqc_report_trimmed/.gitkeep
+
+data/multiqc_report_dedup/*
+!data/multiqc_report_dedup/.gitkeep
+
+data/multiqc_report_clean/*
+!data/multiqc_report_clean/.gitkeep
+
+# variants folder
+data/variants/*
+!data/variants/.gitkeep
+
