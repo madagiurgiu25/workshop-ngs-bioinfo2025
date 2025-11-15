@@ -9,7 +9,7 @@ In this tutorial, you will learn how to **analyze NGS (Next-Generation Sequencin
 
 To illustrate the process, we will use **2×Coriell** data, HG00171 and HG00152, sequenced using **Whole Exome Sequencing (WES)**, freely downlable from [https://www.internationalgenome.org/data-portal/sample](https://www.internationalgenome.org/data-portal/sample).
 
-For practicality, this dataset was trimmed to include only a few genes, effectively **emulating a Panel Sequencing dataset**.
+For practicality, this dataset was trimmed to include only a few genes, effectively **emulating a Panel Sequencing dataset**. You can download these trimmed raw fastq raw from [zenodo](https://zenodo.org/records/17598455) and place them under `workshop-ngs-bioinfo2025/data/raw_fastq`. 
 
 ## Table of Contents
 

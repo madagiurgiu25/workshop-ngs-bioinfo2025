@@ -105,3 +105,10 @@ snakemake --cores 4 \
 ## 4. Workflow structure
 
 ![pipeline](../dag.png)
+
+## 5. Homework
+
+Exercise 1: Try to change the pipeline such that you include FastQC and MultiQC step after `mark_deduplicates` step. Hint: This is similar to `fastq_reports` and `multiqc_report` rules.
+
+Exercise 2: Make the pipeline more configurable by adding as parameter the `SOR` score. This means the `yaml` file and `variant_filtration` rule need adjustment. Hint: This is similar to `DP` parameter.
+

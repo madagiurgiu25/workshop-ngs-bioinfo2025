@@ -137,28 +137,123 @@ tabix -p vcf isec_out/0003.vcf.gz
 
 ## 5. Compute on-target coverage
 
+### 5.0 Required packages
+
+Make sure you have installed:
+- awk
+- gawk
+- bedtools
+
+```
+# install MacOS
+brew install awk gawk bedtools
+
+# install Linux
+apt-get install awk gawk bedtools
+```
+
 ### 5.1 Extract Exons for a Gene
 
-Extract all the exons for DMD gene:
+To compute a BED file containing the union exons of the each target gene one can use the gene annotation from GENCODE. The code below assumes a basic familiarity with `awk` and `regex`.
 
 ```bash
-# Extract all exons
-gene=DMD
-grep -w $gene anno.gtf | awk '$3=="exon"' > ${gene}_exons.gtf
-
-# Convert to BED format
-awk -v gene=$gene -F"\t" 'BEGIN{OFS="\t"} $3=="exon" && match($0,/gene_name "([^"]+)"/,g) && g[1]==gene {match($0,/gene_name "(\w+)";/,g); match($0,/exon_number ([0-9]+);/,e); print $1,$4-1,$5,"exon_"e[1],".",$7,g[1];}' ${gene}_exons.gtf > ${gene}_exons.bed
-
-bedtools sort -i ${gene}_exons.bed | bedtools merge -i - -s -c 4,5,6,7 -o collapse,distinct,distinct,distinct > ${gene}_exons_all.bed
-
-awk 'BEGIN{OFS="\t"} {print $1,$2,$3,"exon_"NR,$5,$6,$7}' ${gene}_exons_all.bed > tmp && mv tmp ${gene}_exons_all.bed
+wget https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_49/gencode.v49.primary_assembly.basic.annotation.gtf.gz
+gunzip gencode.v49.primary_assembly.basic.annotation.gtf.gz
 ```
+
+These are stored in [GTF](https://www.ensembl.org/info/website/upload/gff.html) format looking like:
+
+```
+chrX  HAVANA  gene  31097677  33339609  . - . gene_id "ENSG00000198947.18"; gene_type "protein_coding" gene_name "DMD";
+chrX  HAVANA  exon  31177932  31178178  . - . gene_id "ENSG00000198947.18"; transcript_id "ENST00000679437.1"; gene_type "protein_coding"; gene_name "DMD";
+chrX  HAVANA  exon  31173539  31173604  . - . gene_id "ENSG00000198947.18"; transcript_id "ENST00000679437.1"; gene_type "protein_coding"; gene_name "DMD";
+...
+```
+
+Extract all the exons (including coding and non-coding exons) for DMD gene:
+
+```bash
+
+gene=DMD
+gtf=gencode.v49.primary_assembly.basic.annotation.gtf
+
+# Extract all lines in the file which match exactly "DMD" and are exons
+# MacOS
+grep -e "\""$gene"\"" $gtf | awk '$3=="exon"' > ${gene}_exons.gtf
+
+# Linux
+grep -P "\""$gene"\"" $gtf | awk '$3=="exon"' > ${gene}_exons.gtf
+```
+
+The  `${gene}_exons.gtf` contains the following information:
+
+```bash
+head -1 ${gene}_exons.gtf
+chrX	HAVANA	exon	31177932	31178178	.	-	.	gene_id "ENSG00000198947.18"; transcript_id "ENST00000679437.1"; gene_type "protein_coding"; gene_name "DMD"; transcript_type "protein_coding"; transcript_name "DMD-231"; exon_number 1; exon_id "ENSE00003910833.1"; level 2; protein_id "ENSP00000506629.1"; hgnc_id "HGNC:2928"; tag "CAGE_supported_TSS"; tag "RNA_Seq_supported_only"; tag "basic"; tag "GENCODE_Primary"; havana_gene "OTTHUMG00000021336.7";
+```
+
+Next, extract per line the following information:
+
+- Gene name using the regex `gene_name "([^"]+)";` - ATTENTION in this case `^` means negation, and `[^"]` means match everything which is not a quote `"`; `^` can also mean start of the line if it is not inside a `[ ]`
+- Exon number using the regex `exon_number ([0-9]+);` - means match only numbers
+
+```bash
+# Convert to BED format
+gawk -v gene="$gene" -F"\t" '
+BEGIN{OFS="\t"}
+{
+    match($0,/gene_name "([^"]+)";/,g)
+    match($0,/exon_number ([0-9]+);/,e)
+    print $1,$4-1,$5,"exon_" e[1],".",$7,g[1]
+}' "${gene}_exons.gtf" > "${gene}_exons.bed"
+```
+
+And output a BED format: `chr start end exon_number score strand gene`, which is the equivalent in your file of `print $1,$4-1,$5,"exon_"e[1],".",$7,g[1];`.
+
+```bash
+head ${gene}_exons.bed
+# chrX	31177931	31178178	exon_1	.	-	DMD
+# chrX	31173538	31173604	exon_2	.	-	DMD
+# chrX	31172347	31172413	exon_3	.	-	DMD
+```
+
+Every gene has multiple isoforms. To compute the on-target coverage we are interested to compute the union of non-overlapping regions across all isoforms. For this we use `bedtools merge`. Upfront we need to sort all the coordinates. 
+
+```bash
+bedtools sort -i ${gene}_exons.bed | bedtools merge -i - -s -c 4,5,6,7 -o collapse,distinct,distinct,distinct > ${gene}_exons_all.bed
+```
+
+This will generate the following file:
+
+```bash
+head ${gene}_exons_all.bed
+# chrX	31119218	31121930	exon_17,exon_8,exon_9,exon_51,exon_79,exon_25,exon_79,exon_34,exon_36,exon_32,exon_35,exon_31,exon_17,exon_14,exon_16,exon_15,exon_8,exon_33,exon_17,exon_18,exon_35,exon_16,exon_13	.	-	DMD
+# chrX	31126641	31126673	exon_34,exon_16,exon_15,exon_32,exon_31,exon_78,exon_13,exon_16,exon_78,exon_50,exon_35,exon_24,exon_17	.	-	DMD
+# chrX	31126885	31127186	exon_16	.	-	DMD
+# chrX	31134101	31134194	exon_49,exon_14,exon_30,exon_7,exon_16,exon_12,exon_34,exon_16,exon_15,exon_77,exon_15,exon_33,exon_34,exon_77,exon_12,exon_15,exon_30,exon_15,exon_7,exon_23,exon_8,exon_33,exon_14	.	-	DMD
+```
+
+Finally we renumber column 4, i.e. `exon_1`, `exon_2`, ....
+
+```bash
+awk 'BEGIN{OFS="\t"} {print $1,$2,$3,"exon_"NR,$5,$6,$7}' ${gene}_exons_all.bed > tmp && mv tmp ${gene}_exons_all.bed
+
+head ${gene}_exons_all.bed
+# chrX	31119218	31121930	exon_1	.	-	DMD
+# chrX	31126641	31126673	exon_2	.	-	DMD
+# chrX	31126885	31127186	exon_3	.	-	DMD
+# chrX	31134101	31134194	exon_4	.	-	DMD
+```
+
+Attention: Exons may be coding or non-coding, and when overlapping regions are merged, the exon numbering will no longer correspond to the exon numbers of individual isoforms.
 
 ### 5.2 Compute Mean Exon Coverage
 
-Compute on-target mean coverage for DMD:
+We compute the on-target mean coverage of `DMD` gene for `HG00171_female_ERR034564` and `HG00152_male_SRR769545`. The mean coverage is compute by averaging the read-depth across all bases covering an exon.
 
 ```bash
+# assumes you are in workshop-ngs-bioinfo2025/data
+mkdir -p stats
 gene=DMD
 
 sample=HG00171_female_ERR034564
@@ -168,3 +263,8 @@ sample=HG00152_male_SRR769545
 bedtools coverage -a index/${gene}_exons_all.bed -b ppaired/${sample}.proper.sorted.bam -mean > stats/${sample}_${gene}_exon_mean_coverage.bed
 ```
 
+Output will contain an additional column wit the on-target mean coverage.
+
+```bash
+
+```

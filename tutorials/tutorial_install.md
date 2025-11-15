@@ -8,6 +8,19 @@ Before starting, ensure you have on your laptop/work station:
 * **At least 8 GB RAM**
 * **A stable internet connection** for downloading reference and sample data
 
+To download the code from this repository you need to install Git. If you are not familiar with Git check for example this [video tutorial](https://www.youtube.com/watch?v=QzvA7r-WndM).
+
+```
+# MacOS
+brew install git
+
+# Linux
+sudo apt get install git
+
+# Windows
+# install from https://git-scm.com/install/windows
+```
+
 ## **1. Prepare a Linux-like Terminal**
 
 Most bioinformatics tools are designed for Linux.
