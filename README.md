@@ -12,7 +12,7 @@ In this series of tutorials, you will learn step-by-step how to analyze NGS (Nex
    - Download the human reference genome
    - Install necessary bioinformatics tools
 
-2. [From FASTQ to BAM: Preprocessing NGS Data](tutorials/tutorial_from_fastq_to_bam.md)  
+2. [From FASTQ to BAM: Primary analysis of NGS data](tutorials/tutorial_from_fastq_to_bam.md)  
    Learn how to:
    - Perform initial quality control (FastQC & MultiQC)
    - Trim reads using Trim Galore!
@@ -23,11 +23,20 @@ In this series of tutorials, you will learn step-by-step how to analyze NGS (Nex
    - Deduplicate reads and keep properly paired reads
    - Run final QC on cleaned BAM files
 
-3. [From BAM to VCF](tutorials/tutorial_from_bam_to_vcf.md)  
+3. [From BAM to VCF: Secondary analysis of NGS data](tutorials/tutorial_from_bam_to_vcf.md)  
    Learn how to:
    - Perform variant calling
    - Perform variant filtering
    - Perform QC: variants stats and compute on-target coverage
+
+4. [Workflow automation using Snakemake](tutorials/tutorial_workflow_automation.md)  
+   Learn how to:
+   - Run all the steps as Snakemake workflow
+
+5. [Variants annotation using VEP](tutorials/tutorial_vcf_annotation.md)  
+   Learn how to:
+   - Annotate variants using VEP interface
+   - Make a REST call to VEP and retrieve annotation per variant
 ---
 
 ## Repository Structure
