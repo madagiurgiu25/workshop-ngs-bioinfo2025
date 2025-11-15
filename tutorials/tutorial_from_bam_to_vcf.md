@@ -263,8 +263,20 @@ sample=HG00152_male_SRR769545
 bedtools coverage -a index/${gene}_exons_all.bed -b ppaired/${sample}.proper.sorted.bam -mean > stats/${sample}_${gene}_exon_mean_coverage.bed
 ```
 
-Output will contain an additional column wit the on-target mean coverage.
+Output will contain an additional column wit the on-target mean coverage:
 
 ```bash
+head stats/HG00171_female_ERR034564_DMD_exon_mean_coverage.bed 
+# chrX	31097676	31098183	exon_1	.	-	DMD	0.9644970
+# chrX	31119218	31121930	exon_2	.	-	DMD	17.6165199
+# chrX	31126641	31126797	exon_3	.	-	DMD	181.5384674
+# chrX	31126885	31127186	exon_4	.	-	DMD	9.0465117
+# chrX	31129926	31134689	exon_5	.	-	DMD	28.1490650
 
+head stats/HG00152_male_SRR769545_DMD_exon_mean_coverage.bed
+# chrX	31097676	31098183	exon_1	.	-	DMD	0.3846154
+# chrX	31119218	31121930	exon_2	.	-	DMD	1.1530236
+# chrX	31126641	31126797	exon_3	.	-	DMD	32.5897446
+# chrX	31126885	31127186	exon_4	.	-	DMD	0.0000000
+# chrX	31129926	31134689	exon_5	.	-	DMD	1.3722444
 ```
