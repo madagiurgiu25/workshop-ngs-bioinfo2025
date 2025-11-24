@@ -1,3 +1,6 @@
+
+# How to run: snakemake -s Snakefile_multisample --cores 1
+
 configfile: "config.yaml"
 
 REF = config["ref"]
