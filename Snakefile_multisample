@@ -1,0 +1,65 @@
+configfile: "config.yaml"
+
+REF = config["ref"]
+THREADS = config["threads"]
+MINLEN = config["minlen"]
+Q = config["q"] 
+DP = config["DP"]
+
+
+R1=["data/raw_fastq/HG00171_female_ERR034564_1.cut.fastq.gz",
+    "data/raw_fastq/HG00152_male_SRR769545_1.cut.fastq.gz"
+    ]
+R2=["data/raw_fastq/HG00171_female_ERR034564_2.cut.fastq.gz",
+    "data/raw_fastq/HG00152_male_SRR769545_2.cut.fastq.gz"
+    ]
+OUTDIR=["results/HG00171_female",
+        "results/HG00152_male"
+    ]
+SAMPLE=["HG00171_female_ERR034564",
+        "HG00152_male_SRR769545"]
+
+# ========== CREATE OUTPUT DIRECTORY ==========
+for o in OUTDIR:
+    os.makedirs(o, exist_ok=True)  
+
+# ========== TARGET RULE ===================
+
+rule all:
+    input:
+        expand("{oaux}/fastqc_reports/{saux}_1.cut_fastqc.html", oaux=OUTDIR, saux=SAMPLE),
+        expand("{oaux}/fastqc_reports/{saux}_2.cut_fastqc.html", oaux=OUTDIR, saux=SAMPLE),
+        expand("{oaux}/multiqc_report/multiqc_report.html", oaux=OUTDIR),
+
+
+# ------------------------------------------------------------
+# 1. Run FastQC on raw FASTQs
+# ------------------------------------------------------------
+rule fastqc_reports:
+    input:
+        r1=lambda wildcards: R1[SAMPLE.index(wildcards.saux)],
+        r2=lambda wildcards: R2[SAMPLE.index(wildcards.saux)]
+    output:
+        "{oaux}/fastqc_reports/{saux}_1.cut_fastqc.html",
+        "{oaux}/fastqc_reports/{saux}_2.cut_fastqc.html"
+    threads: THREADS
+    shell:
+        """
+        mkdir -p {wildcards.oaux}/fastqc_reports
+        fastqc -t {threads} -o {wildcards.oaux}/fastqc_reports {input}
+        """
+
+# ------------------------------------------------------------
+# 2. Run MultiQC on raw FastQC reports
+# ------------------------------------------------------------
+rule multiqc_report:
+    input:
+        expand("{oaux}/fastqc_reports/{saux}_1.cut_fastqc.html",oaux=OUTDIR, saux=SAMPLE),
+        expand("{oaux}/fastqc_reports/{saux}_2.cut_fastqc.html",oaux=OUTDIR, saux=SAMPLE),
+    output:
+        "{oaux}/multiqc_report/multiqc_report.html"
+    params:
+        outdir=lambda wildcards: wildcards.oaux
+    shell:
+        "mkdir -p {params.outdir}/multiqc_report && multiqc {params.outdir}/fastqc_reports -o {params.outdir}/multiqc_report"
+

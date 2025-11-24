@@ -26,3 +26,5 @@ q: 20
 
 # Minimal depth of coverage for variant calling
 DP: 20
+
+
